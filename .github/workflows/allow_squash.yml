@@ -1,0 +1,16 @@
+name: Check Merge Method
+
+on:
+  pull_request:
+
+jobs:
+  check_merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check merge method
+        run: |
+          if [ "${{ github.event.pull_request.merge_method }}" != "squash" ]; then
+            echo "Error: Pull request must be merged using 'squash' method."
+            exit 1
+          fi
