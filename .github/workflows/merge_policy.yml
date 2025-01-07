@@ -1,0 +1,47 @@
+name: Enforce Merge Policy
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited] # Trigger on PR changes
+  pull_request_review: # Trigger on reviews so the action runs after a review is submitted
+    types: [submitted]
+
+jobs:
+  check-merge-method:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const headBranch = pr.head.ref;
+            const mergeMethod = pr.merge_commit_sha ? 'merge' : pr.squash_merge_commit_sha ? 'squash' : pr.mergeable_state === 'clean' ? 'unknown' : 'conflicted';
+            if (!headBranch.startsWith('merge/') && mergeMethod !== 'squash') {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: 'This PR must be squash merged unless the branch name starts with "merge/". Please change the merge method.'
+              });
+
+              github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: ['merge-blocked']
+              });
+            } else if (headBranch.startsWith('merge/') && mergeMethod === 'squash'){
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: 'This PR should not be squash merged as the branch name starts with "merge/". Please change the merge method.'
+              });
+
+              github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: ['merge-blocked']
+              });
+            }
