@@ -2,15 +2,15 @@ name: Enforce Merge Policy
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited] # Trigger on PR changes
-  pull_request_review: # Trigger on reviews so the action runs after a review is submitted
-    types: [submitted]
+    # types: [opened, synchronize, reopened, edited] # Trigger on PR changes
+#   pull_request_review: # Trigger on reviews so the action runs after a review is submitted
+#     types: [submitted]
 
 jobs:
   check-merge-method:
     runs-on: ubuntu-latest
     permissions: write-all
-    
+
     steps:
       - uses: actions/github-script@v6
         with:
