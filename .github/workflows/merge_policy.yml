@@ -9,6 +9,8 @@ on:
 jobs:
   check-merge-method:
     runs-on: ubuntu-latest
+    permissions: write-all
+    
     steps:
       - uses: actions/github-script@v6
         with:
